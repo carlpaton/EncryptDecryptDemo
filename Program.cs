@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Newtonsoft.Json;
+using System.Security.Cryptography;
 using System.Text;
 
 // In REAL application, NEVER hardcode this.
@@ -7,6 +8,8 @@ var iv =  "00000000-0000-0000-0000-000000000002";
 
 var service = new AesEncryptionService(key, iv);
 var originalText = "This is something Id like to Encrypt for network transport.";
+//var obj = new MyObj { Id = 1, Foo = "bar" };
+//originalText = JsonConvert.SerializeObject(obj);
 Console.WriteLine($"OriginalText:\n {originalText}");
 Console.WriteLine("--------------------------------------------------------------\n");
 
@@ -60,4 +63,10 @@ public class AesEncryptionService(string key, string iv)
         csDecrypt.CopyTo(msPlain); // Simpler way to read the entire stream, could also use StreamReader
         return msPlain.ToArray();
     }
+}
+
+public class MyObj() 
+{
+    public int Id { get; set; }
+    public string Foo { get; set; }
 }
