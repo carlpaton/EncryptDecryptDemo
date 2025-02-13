@@ -2,26 +2,23 @@
 using System.Text;
 
 // In REAL application, NEVER hardcode this.
-string key = "MySuperSecretKey"; 
-string iv = "MyInitialVector";
+var key = "00000000-0000-0000-0000-000000000001";
+var iv =  "00000000-0000-0000-0000-000000000002";
 
 var service = new AesEncryptionService(key, iv);
-
-string originalText = "This is something Id like to Encrypt for network transport.";
+var originalText = "This is something Id like to Encrypt for network transport.";
 Console.WriteLine($"OriginalText:\n {originalText}");
 Console.WriteLine("--------------------------------------------------------------\n");
 
-byte[] dataToEncrypt = Encoding.UTF8.GetBytes(originalText);
-
-byte[] encryptedData = service.Encrypt(dataToEncrypt);
-string encryptedBase64 = Convert.ToBase64String(encryptedData); // Good for storage/transmission
-
+var dataToEncrypt = Encoding.UTF8.GetBytes(originalText);
+var encryptedData = service.Encrypt(dataToEncrypt);
+var encryptedBase64 = Convert.ToBase64String(encryptedData); // Good for storage/transmission
 Console.WriteLine($"Encrypted (and converted Base64 for storage/transmission):\n {encryptedBase64}");
 Console.WriteLine("--------------------------------------------------------------\n");
 
-byte[] decryptedData = service.Decrypt(encryptedData);
-string decryptedText = Encoding.UTF8.GetString(decryptedData);
-
+var decryptedFromBase64 = Convert.FromBase64String(encryptedBase64); // Back from storage/transmission
+var decryptedData = service.Decrypt(decryptedFromBase64);
+var decryptedText = Encoding.UTF8.GetString(decryptedData);
 Console.WriteLine($"Decrypted:\n {decryptedText}");
 
 Console.ReadKey();
@@ -51,12 +48,12 @@ public class AesEncryptionService(string key, string iv)
 
     public byte[] Decrypt(byte[] cipherText)
     {
-        using var aesAlg = Aes.Create();
-        aesAlg.Key = _key;
-        aesAlg.IV = _initializationVector;
-        aesAlg.Padding = PaddingMode.PKCS7; // Explicitly set padding
+        using var aes = Aes.Create();
+        aes.Key = _key;
+        aes.IV = _initializationVector;
+        aes.Padding = PaddingMode.PKCS7; // Explicitly set padding
 
-        using var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+        using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
         using var msDecrypt = new MemoryStream(cipherText);
         using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
         using var msPlain = new MemoryStream();
